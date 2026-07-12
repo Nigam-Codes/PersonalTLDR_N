@@ -521,6 +521,19 @@ input{font-family:inherit}
 .flash-row .h a:hover{color:var(--cyan)}
 .flash-row .h .fsrc{font-size:10.5px;color:var(--txt-3);margin-top:2px;font-weight:500}
 .chip.on-chip{color:var(--cyan);border-color:rgba(56,189,248,.45);background:rgba(56,189,248,.1)}
+.unread-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 8px var(--cyan);display:inline-block;flex:none}
+.ls-card .card-body{padding:15px 17px 13px}
+.ls-card h3 a{transition:color .15s}
+.ls-card h3 a:hover{color:var(--cyan)}
+.ls-card.is-read h3 a{color:var(--txt-2)}
+.ls-card .bars{width:70px}
+.ls-card .bars i{background:var(--panel-2)}
+.ls-card .bars i.on{background:linear-gradient(90deg,var(--cyan),var(--emerald))}
+.kb-focus{border-color:rgba(56,189,248,.6)!important;
+  box-shadow:0 0 0 3px rgba(56,189,248,.22),var(--shadow-lg)!important}
+.digest-folder{font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--txt-3);padding:10px 6px 4px}
 .refresh-btn{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;
   color:var(--txt-3);border:1px solid var(--line);background:var(--panel-2);transition:.15s}
 .refresh-btn:hover{color:var(--cyan);border-color:rgba(56,189,248,.4);transform:translateY(-1px)}
@@ -916,6 +929,24 @@ const LIVE_QUERIES={
   drones:"drone UAV technology",india:"India technology semiconductor",
   china:"China technology semiconductor",anime:"anime industry japan",
 };
+/* Publisher RSS feeds per desk — real descriptions become TL;DR bullets.
+   Fetched in parallel with the Google News query; any that fail are skipped. */
+const PUBLISHER_FEEDS={
+  all:["https://techcrunch.com/feed/","https://www.theverge.com/rss/index.xml",
+       "https://feeds.arstechnica.com/arstechnica/index","https://feeds.bbci.co.uk/news/world/rss.xml"],
+  ai:["https://techcrunch.com/category/artificial-intelligence/feed/","https://venturebeat.com/category/ai/feed/"],
+  geo:["https://feeds.bbci.co.uk/news/world/rss.xml","https://www.aljazeera.com/xml/rss/all.xml"],
+  markets:["https://www.marketwatch.com/rss/topstories","https://feeds.a.dj.com/rss/RSSMarketsMain.xml"],
+  startups:["https://techcrunch.com/category/startups/feed/","https://news.crunchbase.com/feed/"],
+  science:["https://www.sciencedaily.com/rss/all.xml","https://phys.org/rss-feed/"],
+  crypto:["https://www.coindesk.com/arc/outboundfeeds/rss/","https://cointelegraph.com/rss"],
+  energy:["https://oilprice.com/rss/main","https://cleantechnica.com/feed/"],
+  propulsion:["https://spacenews.com/feed/","https://www.nasaspaceflight.com/feed/"],
+  drones:["https://dronelife.com/feed/","https://breakingdefense.com/feed/"],
+  india:["https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms"],
+  china:["https://www.scmp.com/rss/36/feed","https://technode.com/feed/"],
+  anime:["https://www.animenewsnetwork.com/newsfeed/rss.xml"],
+};
 const FLASH_TOPICS=[
   {id:"oil",label:"Oil & Energy",q:"crude oil prices OPEC energy markets",color:"#fbbf24"},
   {id:"ai",label:"AI & Robotics",q:"artificial intelligence robotics",color:"#38bdf8"},
@@ -976,8 +1007,10 @@ const store={
   theme:localStorage.getItem(LS+"_theme")||"dark",
   density:localStorage.getItem(LS+"_dens")||"comfortable",
   customCats:JSON.parse(localStorage.getItem(LS+"_cc")||"[]"),
+  read:JSON.parse(localStorage.getItem(LS+"_rd")||"[]"),
   save(){
     localStorage.setItem(LS+"_cc",JSON.stringify(this.customCats));
+    localStorage.setItem(LS+"_rd",JSON.stringify(this.read));
     localStorage.setItem(LS+"_tags",JSON.stringify(this.followedTags));
     localStorage.setItem(LS+"_bm",JSON.stringify(this.bookmarks));
     localStorage.setItem(LS+"_sv",JSON.stringify(this.saved));
@@ -1031,6 +1064,7 @@ const I={
   calendar:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',
   star:'<path d="M12 3l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18l-5.8 3 1.1-6.5L2.6 9.8l6.5-.9z"/>',
   refresh:'<path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/>',
+  check:'<path d="M20 6L9 17l-5-5"/>',
 };
 function svg(path,cls,st){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" ${cls?`class="${cls}"`:""} ${st?`style="${st}"`:""}>${path}</svg>`;}
 
@@ -1120,7 +1154,8 @@ const PROXY=[
   u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}`,
 ];
 const MKT={sym:"NVDA",range:"3M",topic:"oil"};
-let LW={id:"all",q:"technology OR markets OR science"};
+let LW={id:"all"};
+let kbIdx=-1; // j/k keyboard cursor over feed cards
 
 function cacheGet(k,maxAge){
   try{const o=JSON.parse(localStorage.getItem("tldr_c_"+k)||"null");
@@ -1141,6 +1176,7 @@ async function fetchLive(url,{direct=false,timeout=8000}={}){
   for(const wrap of tries){
     try{
       const r=await fetchTimeout(wrap(url),timeout);
+      LIVE.sawNet=true; // any HTTP response proves the network is reachable
       if(!r.ok)throw new Error("HTTP "+r.status);
       const txt=await r.text();
       if(!txt)throw new Error("empty");
@@ -1149,7 +1185,9 @@ async function fetchLive(url,{direct=false,timeout=8000}={}){
     }catch(e){err=e;}
   }
   LIVE.failCount++;
-  if(!LIVE.okCount&&LIVE.failCount>=3)LIVE.netDead=true; // stop hammering dead networks
+  // Latch offline only when nothing has EVER reached the network —
+  // a single endpoint failing must not kill the other feeds.
+  if(!LIVE.okCount&&!LIVE.sawNet&&LIVE.failCount>=3)LIVE.netDead=true;
   throw err||new Error("fetch failed");
 }
 function hashCode(s){let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))|0;return Math.abs(h)||7;}
@@ -1204,11 +1242,130 @@ async function gnews(q,fresh){
     const src=it.getElementsByTagName("source")[0]?.textContent||"";
     if(src&&title.endsWith(" - "+src))title=title.slice(0,-(src.length+3));
     return {title,link:it.querySelector("link")?.textContent||"#",src:src||"News",
+      desc:it.querySelector("description")?.textContent||"",
       pub:+new Date(it.querySelector("pubDate")?.textContent||Date.now())};
   }).filter(x=>x.title);
   if(!items.length)throw new Error("empty rss");
   cacheSet(key,items);
   return items;
+}
+function stripHtml(h){
+  try{return new DOMParser().parseFromString(h,"text/html").body.textContent||"";}
+  catch(_){return String(h).replace(/<[^>]*>/g," ");}
+}
+function cleanSrc(s){
+  return (s||"News").split(/\s+[»|–-]\s+/)[0].trim().slice(0,26);
+}
+function parseFeed(xml){
+  const doc=new DOMParser().parseFromString(xml,"text/xml");
+  if(doc.querySelector("parsererror"))throw new Error("bad xml");
+  const gt=(node,tag)=>node.getElementsByTagName(tag)[0]?.textContent||"";
+  const chTitle=cleanSrc(doc.querySelector("channel>title")?.textContent
+    ||doc.getElementsByTagName("feed")[0]?.getElementsByTagName("title")[0]?.textContent||"");
+  const rss=[...doc.querySelectorAll("channel>item")];
+  if(rss.length)return rss.slice(0,14).map(it=>({
+    title:gt(it,"title").trim(),
+    link:gt(it,"link").trim()||it.getElementsByTagName("guid")[0]?.textContent||"#",
+    desc:gt(it,"description")||it.getElementsByTagName("content:encoded")[0]?.textContent||"",
+    pub:+new Date(gt(it,"pubDate")||gt(it,"dc:date")||Date.now()),
+    src:chTitle,
+  })).filter(x=>x.title);
+  const atom=[...doc.querySelectorAll("entry")];
+  return atom.slice(0,14).map(e=>({
+    title:gt(e,"title").trim(),
+    link:e.querySelector('link[rel="alternate"]')?.getAttribute("href")
+      ||e.querySelector("link")?.getAttribute("href")||"#",
+    desc:gt(e,"summary")||gt(e,"content")||"",
+    pub:+new Date(gt(e,"updated")||gt(e,"published")||Date.now()),
+    src:chTitle,
+  })).filter(x=>x.title);
+}
+async function fetchFeedCached(url,fresh){
+  const key="f_"+url;
+  if(!fresh){const c=cacheGet(key,5*60e3);if(c)return c;}
+  const items=parseFeed(await fetchLive(url));
+  if(!items.length)throw new Error("empty feed");
+  cacheSet(key,items);
+  return items;
+}
+function dedupeItems(items){
+  const seen=new Set();
+  return items.filter(i=>{
+    const k=i.title.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,80);
+    if(!k||seen.has(k))return false;
+    seen.add(k);return true;
+  });
+}
+const STOPWORDS=new Set(("the a an of to in on for and as at by with its is are was were be has have had "+
+  "after over from new up out how what why says said will could would this that it his her their your "+
+  "more than into amid about not no you we they he she").split(" "));
+function titleTokens(t){
+  return new Set(t.toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/)
+    .filter(w=>w.length>2&&!STOPWORDS.has(w)));
+}
+/* Group items that are the same story across sources (token overlap). */
+function clusterStories(items){
+  const clusters=[];
+  [...items].sort((a,b)=>b.pub-a.pub).forEach(it=>{
+    const ts=titleTokens(it.title);
+    let best=null,bestScore=0;
+    for(const c of clusters){
+      let inter=0;ts.forEach(w=>{if(c.tokens.has(w))inter++;});
+      const uni=c.tokens.size+ts.size-inter;
+      const j=uni?inter/uni:0;
+      const score=Math.max(j,inter>=4?0.5:0,(inter>=3&&j>=0.22)?0.45:0);
+      if(score>bestScore){bestScore=score;best=c;}
+    }
+    if(best&&bestScore>=0.4){best.items.push(it);ts.forEach(w=>best.tokens.add(w));}
+    else clusters.push({tokens:new Set(ts),items:[it]});
+  });
+  return clusters.map(c=>{
+    const primary=c.items.reduce((a,b)=>(!a.desc&&b.desc)?b:a,c.items[0]);
+    const srcs=[...new Set(c.items.map(i=>cleanSrc(i.src)))];
+    return {...primary,pub:Math.max(...c.items.map(i=>i.pub)),
+      alts:c.items.filter(i=>i!==primary),srcs,srcCount:srcs.length};
+  }).sort((a,b)=>(b.srcCount-a.srcCount)||(b.pub-a.pub));
+}
+/* Real TL;DR bullets: publisher description sentences, then other sources' angles. */
+function toBullets(st){
+  let bullets=[];
+  if(st.desc){
+    const clean=stripHtml(st.desc).replace(/\s+/g," ").trim();
+    const tl=st.title.toLowerCase();
+    if(clean.length>40){
+      bullets=clean.split(/(?<=[.!?])\s+/)
+        .map(s=>s.trim())
+        .filter(s=>s.length>30&&s.length<260)
+        .filter(s=>{const sl=s.toLowerCase();
+          return !tl.includes(sl.slice(0,40))&&!sl.includes(tl.slice(0,40));})
+        .slice(0,3);
+    }
+  }
+  const room=4-bullets.length;
+  if(room>0&&st.alts&&st.alts.length){
+    const tl=st.title.toLowerCase();
+    st.alts.filter(a=>a.title.toLowerCase()!==tl).slice(0,room)
+      .forEach(a=>bullets.push(a.title+" — "+cleanSrc(a.src)));
+  }
+  return bullets.slice(0,4);
+}
+function markRead(key){
+  if(store.read.includes(key))return;
+  store.read.push(key);
+  if(store.read.length>800)store.read=store.read.slice(-800);
+  store.save();
+}
+/* Resolve what a desk id means: built-in category, custom keyword/feed desk, or All. */
+function resolveDesk(id){
+  if(id==="all")return {q:"technology OR markets OR science",feeds:PUBLISHER_FEEDS.all,
+    name:"All Desks",color:"#fb7185"};
+  if(CAT[id])return {q:LIVE_QUERIES[id],feeds:PUBLISHER_FEEDS[id]||[],
+    name:CAT[id].short,color:CAT[id].color};
+  const cc=store.customCats.find(x=>x.id===id);
+  if(cc)return cc.mode==="feed"
+    ?{q:null,feeds:[cc.url],name:cc.name,color:cc.color}
+    :{q:cc.q,feeds:[],name:cc.name,color:cc.color};
+  return {q:"technology",feeds:[],name:"News",color:"#fb7185"};
 }
 async function hnNews(q){
   const url=`https://hn.algolia.com/api/v1/search_by_date?query=${encodeURIComponent(q)}&tags=story&hitsPerPage=14`;
@@ -1312,16 +1469,18 @@ function activeArticles(){
 function renderCenter(){
   const c=$("#center");c.innerHTML="";
   clearLiveTimers();
+  kbIdx=-1;
   if(view.mode==="live"){c.appendChild(liveWirePanel());startLiveWire();return;}
   if(view.mode==="ccat"){
     const cc=store.customCats.find(x=>x.id===view.ccat);
     if(!cc){go("home");return;}
-    LW={id:cc.id,q:cc.q};
+    LW={id:cc.id};
     c.appendChild(liveNewsPanel(cc.name,cc.color,false));
     startLiveWire();
     return;
   }
   if(view.mode==="home"||view.mode==="brief")c.appendChild(heroEl());
+  if(view.mode==="brief"){const d=digestPanel();if(d)c.appendChild(d);}
   c.appendChild(catScrollEl());
   c.appendChild(feedBarEl());
   if(view.mode==="cat"&&view.cat==="markets"){c.appendChild(marketsPanel());startMarkets();}
@@ -1383,6 +1542,7 @@ function feedBarEl(){
   const bar=el(`<div class="feed-bar">
     <h2>${esc(title)} <span class="cnt">${cnt} ${cnt===1?'story':'stories'}</span></h2>
     <button class="filter-btn ${Object.keys(view.filters).length?'active':''}" id="feedFilter">${svg(I.sliders)}Filters${Object.keys(view.filters).length?` · ${Object.keys(view.filters).length}`:""}</button>
+    <button class="filter-btn" data-markread title="Mark everything in this view as read">${svg(I.check)}Mark read</button>
     <div class="seg">
       <button data-sort="top" class="${view.sort==='top'?'on':''}">Top</button>
       <button data-sort="latest" class="${view.sort==='latest'?'on':''}">Latest</button>
@@ -1418,6 +1578,36 @@ function savedSearchEl(){
   }
   return box;
 }
+function digestPanel(){
+  const entries=Object.entries(store.bookmarks);
+  if(!entries.length)return null;
+  const byFolder={};
+  entries.forEach(([id,f])=>{
+    const a=ARTICLES.find(x=>x.id==id);
+    if(a)(byFolder[f]=byFolder[f]||[]).push(a);
+  });
+  const unread=entries.filter(([id])=>!store.read.includes("a"+id)).length;
+  const p=el(`<section class="panel" style="padding:16px">
+    <div class="w-head" style="margin-bottom:4px">
+      <div class="ic" style="background:rgba(56,189,248,.13);color:var(--cyan)">${svg(I.book)}</div>
+      <h4>Bookmarks Digest</h4>
+      <span class="mono" style="margin-left:auto;font-size:10.5px;color:var(--txt-3)">${entries.length} saved${unread?` · ${unread} unread`:""}</span>
+    </div></section>`);
+  Object.entries(byFolder).forEach(([f,arts])=>{
+    p.appendChild(el(`<div class="digest-folder">${esc(f)}</div>`));
+    arts.forEach(a=>{
+      const read=store.read.includes("a"+a.id);
+      const cc=CAT[a.cat];
+      p.appendChild(el(`<div class="flash-row" style="cursor:pointer" data-open="${a.id}">
+        <span class="t">${esc(a.time)}</span>
+        <div class="h" style="display:flex;align-items:baseline;gap:7px">
+          ${read?"":'<span class="unread-dot" style="align-self:center"></span>'}
+          <span>${esc(a.title)}<div class="fsrc" style="color:${cc.color}">${cc.short} · ${a.read} min read</div></span>
+        </div></div>`));
+    });
+  });
+  return p;
+}
 function emptyEl(){
   let msg="No stories match this view.";
   if(view.mode==="bookmarks")msg="Bookmark stories to build your reading list. Tap the bookmark icon on any card.";
@@ -1433,7 +1623,7 @@ function articleCard(a){
       <div class="card-body">
         <div class="card-head">
           <span class="cat-badge" style="background:${c.color}1e;color:${c.color}"><span class="d"></span>${c.short}</span>
-          <span class="time">${a.live?'<span class="live"></span>':""}${a.time} ago</span>
+          <span class="time" style="gap:7px">${store.read.includes("a"+a.id)?"":'<span class="unread-dot"></span>'}${a.live?'<span class="live"></span>':""}${a.time} ago</span>
         </div>
         <h3 data-open="${a.id}">${esc(a.title)}</h3>
         <ul class="tldr">
@@ -1644,35 +1834,79 @@ async function refreshFlash(fresh){
    LIVE WIRE — real headlines, desk chips, custom desks
    ========================================================================= */
 function liveNewsPanel(title,color,withChips){
-  return el(`<section class="panel" style="padding:16px">
-    <div class="w-head" style="margin-bottom:12px">
-      <div class="ic" style="background:${color}22;color:${color}">${svg(I.bolt)}</div>
-      <h4>${esc(title)}</h4>
-      <span class="live-pill demo" id="lwPill"><span class="d"></span>Connecting</span>
-      <span class="mono" id="lwUpd" style="margin-left:auto;font-size:10.5px;color:var(--txt-3)"></span>
-      <button class="refresh-btn" data-refresh="wire" title="Refresh headlines now">${svg(I.refresh)}</button>
+  return el(`<div style="display:flex;flex-direction:column;gap:14px">
+    <section class="panel" style="padding:16px">
+      <div class="w-head" style="margin-bottom:${withChips?"12px":"0"}">
+        <div class="ic" style="background:${color}22;color:${color}">${svg(I.bolt)}</div>
+        <h4>${esc(title)}</h4>
+        <span class="live-pill demo" id="lwPill"><span class="d"></span>Connecting</span>
+        <span class="mono" id="lwUpd" style="margin-left:auto;font-size:10.5px;color:var(--txt-3)"></span>
+        <button class="refresh-btn" data-markread title="Mark all read">${svg(I.check)}</button>
+        <button class="refresh-btn" data-refresh="wire" title="Refresh headlines now">${svg(I.refresh)}</button>
+      </div>
+      ${withChips?'<div class="cloud" id="lwChips"></div>':""}
+    </section>
+    <div id="lwList" style="display:flex;flex-direction:column;gap:14px">
+      <div class="panel empty">${svg(I.bolt)}<b>Connecting to live feeds…</b>Pulling the latest headlines.</div>
     </div>
-    ${withChips?'<div class="cloud" style="margin-bottom:12px" id="lwChips"></div>':""}
-    <div id="lwList"><div class="empty" style="padding:30px 20px">${svg(I.bolt)}<b>Connecting to live feeds…</b>Pulling the latest headlines.</div></div>
-  </section>`);
+  </div>`);
 }
 function liveWirePanel(){
   const p=liveNewsPanel("Live Wire","#fb7185",true);
-  const desks=[{id:"all",name:"All Desks",q:"technology OR markets OR science"}]
-    .concat(CATEGORIES.filter(c=>!store.hidden.includes(c.id))
-      .map(c=>({id:c.id,name:c.short,q:LIVE_QUERIES[c.id]||c.name})))
-    .concat(store.customCats.map(cc=>({id:cc.id,name:cc.name,q:cc.q})));
+  const desks=[{id:"all",name:"All Desks"}]
+    .concat(CATEGORIES.filter(c=>!store.hidden.includes(c.id)).map(c=>({id:c.id,name:c.short})))
+    .concat(store.customCats.map(cc=>({id:cc.id,name:cc.name})));
   $("#lwChips",p).innerHTML=desks.map(d=>
-    `<button class="chip ${LW.id===d.id?'on-chip':''}" data-lw="${esc(d.id)}" data-lwq="${esc(d.q)}">${esc(d.name)}</button>`).join("");
+    `<button class="chip ${LW.id===d.id?'on-chip':''}" data-lw="${esc(d.id)}">${esc(d.name)}</button>`).join("");
   return p;
+}
+function liveStoryCard(st,color,deskName){
+  const read=store.read.includes(st.link);
+  const bullets=toBullets(st);
+  const canOpen=st.link&&st.link!=="#";
+  const title=canOpen
+    ?`<a href="${esc(st.link)}" target="_blank" rel="noopener noreferrer" data-readlink="${esc(st.link)}">${esc(st.title)}</a>`
+    :esc(st.title);
+  return el(`<article class="panel card ls-card ${read?'is-read':''}" data-link="${esc(st.link)}">
+    <div class="card-body">
+      <div class="card-head" style="margin-bottom:8px">
+        <span class="cat-badge" style="background:${color}1e;color:${color}"><span class="d"></span>${esc(deskName)}</span>
+        ${st.srcCount>1?`<span class="src" title="Outlets covering this story">${st.srcCount} sources</span>`:""}
+        <span class="time" style="gap:7px">${read?"":'<span class="unread-dot"></span>'}${timeAgo(st.pub)} ago</span>
+      </div>
+      <h3 style="font-size:16.5px">${title}</h3>
+      ${bullets.length?`<ul class="tldr" style="margin-top:9px">
+        <div class="lab">${svg(I.brief,"","width:12px;height:12px;stroke:var(--cyan)")} TL;DR</div>
+        ${bullets.map(b=>`<li>${esc(b)}</li>`).join("")}</ul>`:""}
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:11px">
+        <div class="sources">${st.srcs.slice(0,3).map(s=>`<span class="src">${esc(s)}</span>`).join("")}</div>
+        ${st.srcCount>1?`<div style="margin-left:auto" title="Coverage: ${st.srcCount} of 5+">${bars(Math.min(5,st.srcCount+1))}</div>`:""}
+      </div>
+    </div></article>`);
 }
 async function refreshWire(fresh){
   if(!$("#lwList"))return;
-  const {items,live}=await newsOrDemo("wire",LW.q,fresh===true);
+  const d=resolveDesk(LW.id);
+  const f=fresh===true;
+  let live=true;
+  const jobs=(d.feeds||[]).map(u=>fetchFeedCached(u,f).catch(()=>[]));
+  if(d.q)jobs.push(gnews(d.q,f).catch(()=>[]));
+  let items=(await Promise.all(jobs)).flat();
+  if(!items.length){
+    try{items=await hnNews(d.q||d.name);}
+    catch(_){items=demoNews("wire");live=false;}
+  }
   const list=$("#lwList");if(!list)return;
-  list.innerHTML=items.slice(0,14).map(fwRow).join("");
+  const stories=clusterStories(dedupeItems(items)).slice(0,12);
+  list.innerHTML="";
+  stories.forEach((st,i)=>{
+    const card=liveStoryCard(st,d.color,d.name);
+    card.style.animationDelay=(i*30)+"ms";
+    list.appendChild(card);
+  });
   setPill("#lwPill",live);
-  const u=$("#lwUpd");if(u)u.textContent="Updated "+new Date().toLocaleTimeString();
+  const u=$("#lwUpd");
+  if(u)u.textContent=`${stories.length} stories · ${new Date().toLocaleTimeString()}`;
 }
 function startLiveWire(){
   refreshWire();
@@ -1828,6 +2062,7 @@ function renderMobileBar(){
    ========================================================================= */
 function openArticle(id){
   const a=ARTICLES.find(x=>x.id==id);if(!a)return;
+  markRead("a"+a.id);
   const c=CAT[a.cat];
   const related=ARTICLES.filter(x=>x.id!=id&&(x.cat===a.cat||x.tags.some(t=>a.tags.includes(t)))).slice(0,4);
   const bm=store.bookmarks[a.id],sv=store.saved.includes(a.id);
@@ -1961,10 +2196,14 @@ function openCatEditor(anchor){
       ${CATEGORIES.map(c=>`<button class="opt ${store.hidden.includes(c.id)?'':'on'}" data-togglecat="${c.id}">${c.short}</button>`).join("")}
     </div></div>
     <div class="grp"><label>My custom desks</label><div class="opt-wrap" id="ccList"></div></div>
-    <div class="grp"><label>Add a desk — live keyword feed</label>
+    <div class="grp"><label>Add a desk — keywords or an RSS feed URL</label>
       <input id="ccName" type="text" placeholder="Name · e.g. Quantum" maxlength="24">
-      <input id="ccQuery" type="text" placeholder="Keywords · e.g. quantum computing" maxlength="80">
-      <div class="row"><button class="pop-btn solid" id="ccAdd">Add desk</button></div>
+      <input id="ccQuery" type="text" placeholder="Keywords, or https://…/feed" maxlength="200">
+      <div class="row">
+        <button class="pop-btn ghost" id="opmlBtn">Import OPML</button>
+        <button class="pop-btn solid" id="ccAdd">Add desk</button>
+      </div>
+      <input type="file" id="opmlFile" accept=".opml,.xml,text/xml,text/x-opml" style="display:none">
     </div>`,340);
   const renderCC=()=>{
     $("#ccList",p).innerHTML=store.customCats.length
@@ -1991,11 +2230,34 @@ function openCatEditor(anchor){
     const name=$("#ccName",p).value.trim();
     const kq=$("#ccQuery",p).value.trim()||name;
     if(!name){$("#ccName",p).focus();return;}
-    store.customCats.push({id:"c"+Date.now(),name,q:kq,
+    const isUrl=/^https?:\/\//i.test(kq);
+    store.customCats.push({id:"c"+Date.now(),name,
+      mode:isUrl?"feed":"q",q:isUrl?null:kq,url:isUrl?kq:null,
       color:ccColors[store.customCats.length%ccColors.length]});
     store.save();renderNav();
     $("#ccName",p).value="";$("#ccQuery",p).value="";
-    renderCC();toast("Following desk: "+name);
+    renderCC();toast(`Following desk: ${name}${isUrl?" (RSS feed)":""}`);
+  };
+  $("#opmlBtn",p).onclick=()=>$("#opmlFile",p).click();
+  $("#opmlFile",p).onchange=async e=>{
+    const file=e.target.files[0];if(!file)return;
+    try{
+      const doc=new DOMParser().parseFromString(await file.text(),"text/xml");
+      const outlines=[...doc.querySelectorAll("outline[xmlUrl]")].slice(0,12);
+      if(!outlines.length){toast("No feeds found in that OPML");return;}
+      let added=0;
+      outlines.forEach(o=>{
+        const url=o.getAttribute("xmlUrl");
+        const name=(o.getAttribute("title")||o.getAttribute("text")||"Feed").slice(0,24);
+        if(store.customCats.some(x=>x.url===url))return;
+        store.customCats.push({id:"c"+Date.now()+"_"+added,name,mode:"feed",q:null,url,
+          color:ccColors[store.customCats.length%ccColors.length]});
+        added++;
+      });
+      store.save();renderNav();renderCC();
+      toast(added?`Imported ${added} feed${added===1?"":"s"} as desks`:"Those feeds are already followed");
+    }catch(_){toast("Couldn't parse that OPML file");}
+    e.target.value="";
   };
 }
 function openPersonalize(anchor){
@@ -2196,10 +2458,31 @@ function onClick(e){
     return;}
 
   let lw=q("[data-lw]");
-  if(lw){LW={id:lw.dataset.lw,q:lw.dataset.lwq};
+  if(lw){LW={id:lw.dataset.lw};
     $$("#lwChips .chip").forEach(x=>x.classList.toggle("on-chip",x.dataset.lw===LW.id));
-    const l=$("#lwList");if(l)l.innerHTML=`<div class="empty" style="padding:26px 20px">${svg(I.bolt)}<b>Pulling headlines…</b></div>`;
+    const l=$("#lwList");if(l)l.innerHTML=`<div class="panel empty">${svg(I.bolt)}<b>Pulling headlines…</b></div>`;
     refreshWire();return;}
+
+  let rl=q("[data-readlink]");
+  if(rl){ // let the link open; just record it as read
+    markRead(rl.dataset.readlink);
+    const card=rl.closest(".ls-card");
+    if(card){card.classList.add("is-read");card.querySelectorAll(".unread-dot").forEach(d=>d.remove());}
+    return;}
+
+  let mr=q("[data-markread]");
+  if(mr){
+    if($("#lwList")){
+      $$("#lwList [data-link]").forEach(c=>{
+        if(c.dataset.link)markRead(c.dataset.link);
+        c.classList.add("is-read");
+        c.querySelectorAll(".unread-dot").forEach(d=>d.remove());
+      });
+    }else{
+      activeArticles().forEach(a=>markRead("a"+a.id));
+      renderCenter();
+    }
+    toast("All marked as read");return;}
 
   let tg=q("[data-tag]");
   if(tg){goTag(tg.dataset.tag);return;}
@@ -2347,6 +2630,36 @@ function init(){
   document.addEventListener("keydown",e=>{
     if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();si.focus();openSearchPop(si.value);}
     if(e.key==="Escape"){closeSheet();closePop();closeNav();}
+  });
+  // j/k feed navigation, Enter open, b bookmark, r refresh
+  document.addEventListener("keydown",e=>{
+    const tag=e.target.tagName;
+    if(tag==="INPUT"||tag==="TEXTAREA"||e.metaKey||e.ctrlKey||e.altKey)return;
+    if($("#scrim")||$(".pop"))return;
+    if(e.key==="r"){const rb=$("[data-refresh]");if(rb){e.preventDefault();rb.click();}return;}
+    const cards=$$("#center .card, #lwList .card");
+    if(!cards.length)return;
+    if(e.key==="j"||e.key==="k"){
+      e.preventDefault();
+      kbIdx=e.key==="j"?Math.min(cards.length-1,kbIdx+1):Math.max(0,kbIdx-1);
+      cards.forEach((c,i)=>c.classList.toggle("kb-focus",i===kbIdx));
+      cards[kbIdx].scrollIntoView({block:"center",behavior:"smooth"});
+      return;
+    }
+    if(kbIdx<0||kbIdx>=cards.length)return;
+    const c=cards[kbIdx];
+    if(e.key==="Enter"){
+      e.preventDefault();
+      if(c.dataset.id)openArticle(c.dataset.id);
+      else if(c.dataset.link&&c.dataset.link!=="#"){
+        markRead(c.dataset.link);
+        c.classList.add("is-read");
+        c.querySelectorAll(".unread-dot").forEach(d=>d.remove());
+        window.open(c.dataset.link,"_blank","noopener");
+      }
+    }else if(e.key==="b"&&c.dataset.id){
+      const btn=c.querySelector("[data-bm]");if(btn)btn.click();
+    }
   });
 
   // deep link

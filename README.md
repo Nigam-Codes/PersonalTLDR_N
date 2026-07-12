@@ -22,12 +22,18 @@ A personal, single-file news terminal — a Bloomberg-Terminal-meets-Linear dash
 
 The dashboard connects to free, keyless public sources directly from the browser — no backend, no API keys:
 
-- **Live Wire** — real headlines from Google News RSS (via public CORS proxies) with Hacker News Algolia as fallback, filterable by desk, auto-refreshing every 90s
+- **Live Wire** — real stories as TLDR cards: publisher RSS descriptions become genuine TL;DR bullets, and headlines covering the same event are clustered across sources (with a coverage meter), filterable by desk, auto-refreshing every 90s. Sources: per-desk publisher feeds + Google News RSS, Hacker News Algolia fallback.
 - **Live Quote Board** (Stock Market desk) — real prices and daily change for NVDA, AMD, TSLA, MSFT, AAPL, META, TSM, INTC, the SMH chip ETF and WTI crude, from the Yahoo Finance chart API, refreshed every 2 minutes
 - **Candlestick charts** — 6 months of real OHLC + volume rendered on canvas with hover tooltips and 1M/3M/6M ranges
 - **Flash Wire** — live headline stream on Oil & Energy, AI & Robotics, and Chip Money
 - **Watchlist** — rail prices and sparklines hydrate from real quotes
-- **Custom desks** — follow/unfollow any category, or add your own keyword desk that pulls a live feed (Categories → Edit)
+- **Custom desks** — follow/unfollow any category, add a keyword desk, paste an RSS feed URL, or **import an OPML file** to turn your existing feed subscriptions into desks (Categories → Edit)
+
+## Reading workflow
+
+- **j / k** — move through feed cards · **Enter** — open focused story · **b** — bookmark · **r** — refresh the live panel
+- **Unread markers** — cyan dots on stories you haven't opened, with **Mark read** on every view
+- **Bookmarks Digest** — Today's Brief opens with your saved stories grouped by folder, unread-first
 
 Every live surface carries a **LIVE / DEMO DATA** pill: if a feed is unreachable (offline, proxy down, strict CSP), the app falls back to built-in demo data and says so.
 
