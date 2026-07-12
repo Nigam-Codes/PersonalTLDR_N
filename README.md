@@ -18,6 +18,19 @@ A personal, single-file news terminal — a Bloomberg-Terminal-meets-Linear dash
 - **Personalization** — hide categories, dark/light theme, density, watchlist editor — all persisted to `localStorage`
 - **Premium mobile app** — horizontal category tabs, bottom navigation, responsive cards
 
+## Live data
+
+The dashboard connects to free, keyless public sources directly from the browser — no backend, no API keys:
+
+- **Live Wire** — real headlines from Google News RSS (via public CORS proxies) with Hacker News Algolia as fallback, filterable by desk, auto-refreshing every 90s
+- **Live Quote Board** (Stock Market desk) — real prices and daily change for NVDA, AMD, TSLA, MSFT, AAPL, META, TSM, INTC, the SMH chip ETF and WTI crude, from the Yahoo Finance chart API, refreshed every 2 minutes
+- **Candlestick charts** — 6 months of real OHLC + volume rendered on canvas with hover tooltips and 1M/3M/6M ranges
+- **Flash Wire** — live headline stream on Oil & Energy, AI & Robotics, and Chip Money
+- **Watchlist** — rail prices and sparklines hydrate from real quotes
+- **Custom desks** — follow/unfollow any category, or add your own keyword desk that pulls a live feed (Categories → Edit)
+
+Every live surface carries a **LIVE / DEMO DATA** pill: if a feed is unreachable (offline, proxy down, strict CSP), the app falls back to built-in demo data and says so.
+
 ## Design
 
 Charcoal/graphite/navy dark theme (with a full light theme), glassmorphism cards, soft gradients, monospace for all terminal data (prices, times, counts), smooth micro-animations, keyboard shortcuts (`⌘K` search, `Esc` close).
