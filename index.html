@@ -521,6 +521,13 @@ input{font-family:inherit}
 .flash-row .h a:hover{color:var(--cyan)}
 .flash-row .h .fsrc{font-size:10.5px;color:var(--txt-3);margin-top:2px;font-weight:500}
 .chip.on-chip{color:var(--cyan);border-color:rgba(56,189,248,.45);background:rgba(56,189,248,.1)}
+.refresh-btn{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;
+  color:var(--txt-3);border:1px solid var(--line);background:var(--panel-2);transition:.15s}
+.refresh-btn:hover{color:var(--cyan);border-color:rgba(56,189,248,.4);transform:translateY(-1px)}
+.refresh-btn svg{width:14px;height:14px;stroke-width:2.1}
+.refresh-btn.spin svg{animation:rot .9s linear infinite}
+.refresh-btn.spin{pointer-events:none;opacity:.7}
+@keyframes rot{to{transform:rotate(360deg)}}
 .nav-sec-row{display:flex;align-items:center;gap:8px}
 .sec-edit{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.6px;color:var(--txt-3);
   padding:2px 8px;border-radius:6px;border:1px solid var(--line);transition:.14s;text-transform:uppercase}
@@ -1023,6 +1030,7 @@ const I={
   sliders:'<path d="M4 6h16M7 12h10M10 18h4"/>',
   calendar:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',
   star:'<path d="M12 3l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18l-5.8 3 1.1-6.5L2.6 9.8l6.5-.9z"/>',
+  refresh:'<path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/>',
 };
 function svg(path,cls,st){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" ${cls?`class="${cls}"`:""} ${st?`style="${st}"`:""}>${path}</svg>`;}
 
@@ -1185,9 +1193,9 @@ async function getQuote(sym,{fresh=false}={}){
 async function quoteOrDemo(sym,fresh){
   try{return await getQuote(sym,{fresh});}catch(_){return LIVE.quotes[sym]||demoQuote(sym);}
 }
-async function gnews(q){
+async function gnews(q,fresh){
   const key="n_"+q;
-  const c=cacheGet(key,5*60e3);if(c)return c;
+  if(!fresh){const c=cacheGet(key,5*60e3);if(c)return c;}
   const url=`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
   const xml=await fetchLive(url);
   const doc=new DOMParser().parseFromString(xml,"text/xml");
@@ -1215,8 +1223,8 @@ function demoNews(topicId){
   return (DEMO_NEWS[topicId]||DEMO_NEWS.wire).map(([title,src,min])=>
     ({title,src,link:"#",pub:Date.now()-min*6e4}));
 }
-async function newsOrDemo(topicId,q){
-  try{return {items:await gnews(q),live:true};}
+async function newsOrDemo(topicId,q,fresh){
+  try{return {items:await gnews(q,fresh),live:true};}
   catch(_){
     try{return {items:await hnNews(q),live:true};}
     catch(__){return {items:demoNews(topicId),live:false};}
@@ -1466,6 +1474,7 @@ function marketsPanel(){
       <h4>Live Quote Board</h4>
       <span class="live-pill demo" id="mktPill"><span class="d"></span>Connecting</span>
       <span class="mono" id="mktUpd" style="margin-left:auto;font-size:10.5px;color:var(--txt-3)"></span>
+      <button class="refresh-btn" data-refresh="quotes" title="Refresh quotes now">${svg(I.refresh)}</button>
     </div>
     <div class="qb-grid" id="qbGrid">${TICKERS.map(t=>`
       <div class="qb-cell"><div class="s">${esc(t.s)} · ${esc(t.n)}</div>
@@ -1488,6 +1497,7 @@ function marketsPanel(){
       <h4>Flash Wire</h4>
       <span class="live-pill demo" id="fwPill"><span class="d"></span>Connecting</span>
       <span class="mono" id="fwUpd" style="margin-left:auto;font-size:10.5px;color:var(--txt-3)"></span>
+      <button class="refresh-btn" data-refresh="flash" title="Refresh headlines now">${svg(I.refresh)}</button>
     </div>
     <div class="flash-tabs">${FLASH_TOPICS.map(t=>
       `<button class="flash-tab ${MKT.topic===t.id?'on':''}" data-fw="${t.id}" style="--tc:${t.color}">
@@ -1620,10 +1630,10 @@ function fwRow(it){
     <div class="h">${ext?`<a href="${esc(it.link)}" target="_blank" rel="noopener noreferrer">${esc(it.title)}</a>`:esc(it.title)}
       <div class="fsrc">${esc(it.src)}</div></div></div>`;
 }
-async function refreshFlash(){
+async function refreshFlash(fresh){
   if(!$("#fwList"))return;
   const t=FLASH_TOPICS.find(x=>x.id===MKT.topic)||FLASH_TOPICS[0];
-  const {items,live}=await newsOrDemo(t.id,t.q);
+  const {items,live}=await newsOrDemo(t.id,t.q,fresh===true);
   const list=$("#fwList");if(!list)return;
   list.innerHTML=items.slice(0,9).map(fwRow).join("");
   setPill("#fwPill",live);
@@ -1640,6 +1650,7 @@ function liveNewsPanel(title,color,withChips){
       <h4>${esc(title)}</h4>
       <span class="live-pill demo" id="lwPill"><span class="d"></span>Connecting</span>
       <span class="mono" id="lwUpd" style="margin-left:auto;font-size:10.5px;color:var(--txt-3)"></span>
+      <button class="refresh-btn" data-refresh="wire" title="Refresh headlines now">${svg(I.refresh)}</button>
     </div>
     ${withChips?'<div class="cloud" style="margin-bottom:12px" id="lwChips"></div>':""}
     <div id="lwList"><div class="empty" style="padding:30px 20px">${svg(I.bolt)}<b>Connecting to live feeds…</b>Pulling the latest headlines.</div></div>
@@ -1655,9 +1666,9 @@ function liveWirePanel(){
     `<button class="chip ${LW.id===d.id?'on-chip':''}" data-lw="${esc(d.id)}" data-lwq="${esc(d.q)}">${esc(d.name)}</button>`).join("");
   return p;
 }
-async function refreshWire(){
+async function refreshWire(fresh){
   if(!$("#lwList"))return;
-  const {items,live}=await newsOrDemo("wire",LW.q);
+  const {items,live}=await newsOrDemo("wire",LW.q,fresh===true);
   const list=$("#lwList");if(!list)return;
   list.innerHTML=items.slice(0,14).map(fwRow).join("");
   setPill("#lwPill",live);
@@ -2171,6 +2182,18 @@ function onClick(e){
     $$(".flash-tab").forEach(b=>b.classList.toggle("on",b.dataset.fw===MKT.topic));
     const l=$("#fwList");if(l)l.innerHTML=`<div class="empty" style="padding:26px 20px">${svg(I.bolt)}<b>Pulling headlines…</b></div>`;
     refreshFlash();return;}
+
+  let rf=q("[data-refresh]");
+  if(rf){
+    LIVE.netDead=false;LIVE.failCount=0; // manual refresh always retries the network
+    rf.classList.add("spin");
+    const done=()=>rf.classList.remove("spin");
+    const kind=rf.dataset.refresh;
+    if(kind==="wire")refreshWire(true).finally(done);
+    else if(kind==="flash")refreshFlash(true).finally(done);
+    else if(kind==="quotes")refreshQuotes(true).then(drawChart).finally(done);
+    else done();
+    return;}
 
   let lw=q("[data-lw]");
   if(lw){LW={id:lw.dataset.lw,q:lw.dataset.lwq};
