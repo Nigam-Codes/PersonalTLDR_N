@@ -478,6 +478,60 @@ input{font-family:inherit}
 .folder-tab:hover{color:var(--txt);border-color:var(--line-strong)}
 .folder-tab.on{background:rgba(56,189,248,.12);color:var(--cyan);border-color:rgba(56,189,248,.35)}
 
+/* ---------- live data components ---------- */
+.live-pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;
+  font-weight:700;letter-spacing:.8px;padding:3px 9px;border-radius:20px;text-transform:uppercase;flex:none}
+.live-pill .d{width:7px;height:7px;border-radius:50%;background:currentColor}
+.live-pill.on{color:var(--emerald);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3)}
+.live-pill.on .d{animation:pulse 1.6s infinite}
+.live-pill.demo{color:var(--amber);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3)}
+.qb-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.qb-cell{padding:11px 12px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line);
+  text-align:left;transition:.15s;cursor:pointer}
+.qb-cell:hover{border-color:var(--line-strong);transform:translateY(-1px)}
+.qb-cell.sel{border-color:rgba(56,189,248,.55);background:rgba(56,189,248,.08)}
+.qb-cell .s{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--txt-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qb-cell .p{font-family:var(--mono);font-size:15.5px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.qb-cell .c{font-family:var(--mono);font-size:11px;font-weight:600;margin-top:1px;font-variant-numeric:tabular-nums}
+.chart-panel{padding:16px 16px 12px}
+.chart-head{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:12px}
+.chart-head .sym{font-size:15.5px;font-weight:750;letter-spacing:-.2px}
+.chart-head .px{font-family:var(--mono);font-size:15px;font-weight:700}
+.chart-head .chgv{font-family:var(--mono);font-size:12px;font-weight:700}
+.rng{display:flex;gap:2px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:2px;margin-left:auto}
+.rng button{padding:4px 11px;border-radius:7px;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--txt-3);transition:.13s}
+.rng button.on{background:var(--raise);color:var(--txt);box-shadow:var(--shadow)}
+.cc-wrap{position:relative}
+.cc-wrap canvas{width:100%;height:300px;display:block;cursor:crosshair}
+.cc-hair{position:absolute;top:0;bottom:30px;width:1px;background:var(--line-strong);display:none;pointer-events:none}
+.cc-tip{position:absolute;pointer-events:none;background:var(--raise);border:1px solid var(--line-strong);
+  border-radius:10px;padding:8px 11px;font-family:var(--mono);font-size:11px;line-height:1.6;
+  box-shadow:var(--shadow-lg);z-index:5;display:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+.flash-tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.flash-tab{padding:6px 12px;border-radius:9px;font-size:12px;font-weight:650;background:var(--panel-2);
+  border:1px solid var(--line);color:var(--txt-2);transition:.14s;display:inline-flex;align-items:center;gap:6px}
+.flash-tab .dot{width:7px;height:7px;border-radius:50%;background:var(--tc,var(--cyan))}
+.flash-tab:hover{color:var(--txt);border-color:var(--line-strong)}
+.flash-tab.on{color:var(--txt);border-color:var(--tc,var(--cyan));background:color-mix(in srgb,var(--tc,var(--cyan)) 10%,transparent)}
+.flash-row{display:flex;gap:11px;padding:9px 6px;border-radius:10px;align-items:flex-start;transition:.13s}
+.flash-row:hover{background:var(--panel-2)}
+.flash-row .t{font-family:var(--mono);font-size:10.5px;color:var(--txt-3);flex:none;width:38px;padding-top:2px;text-align:right}
+.flash-row .h{font-size:13px;font-weight:550;line-height:1.42;flex:1;min-width:0}
+.flash-row .h a:hover{color:var(--cyan)}
+.flash-row .h .fsrc{font-size:10.5px;color:var(--txt-3);margin-top:2px;font-weight:500}
+.chip.on-chip{color:var(--cyan);border-color:rgba(56,189,248,.45);background:rgba(56,189,248,.1)}
+.nav-sec-row{display:flex;align-items:center;gap:8px}
+.sec-edit{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.6px;color:var(--txt-3);
+  padding:2px 8px;border-radius:6px;border:1px solid var(--line);transition:.14s;text-transform:uppercase}
+.sec-edit:hover{color:var(--cyan);border-color:rgba(56,189,248,.4)}
+.pop input[type="text"],.pop input:not([type]){width:100%;height:38px;padding:0 12px;border-radius:10px;
+  background:var(--panel-2);border:1px solid var(--line);color:var(--txt);font-size:13px;margin-bottom:8px}
+@media (max-width:860px){
+  .qb-grid{grid-template-columns:repeat(2,1fr)}
+  .cc-wrap canvas{height:230px}
+}
+
 /* ============ responsive ============ */
 @media (max-width:1200px){
   :root{--rail-w:0px}
@@ -544,7 +598,7 @@ input{font-family:inherit}
       <div><b>TLDR</b><span>Intelligence</span></div>
     </div>
     <nav id="navMain"></nav>
-    <div class="nav-sec">Categories</div>
+    <div class="nav-sec nav-sec-row">Categories <button class="sec-edit" id="catEditBtn">Edit</button></div>
     <nav id="navCats"></nav>
     <div class="nav-sec">My Tags</div>
     <div class="tag-wrap" id="navTags"></div>
@@ -846,6 +900,50 @@ const NOTIFS = [
   {t:"07:15",m:"US–China trade talks show progress"},
 ];
 
+/* ---- live data config ---- */
+const LIVE_QUERIES={
+  ai:"artificial intelligence OR robotics",geo:"geopolitics diplomacy sanctions",
+  markets:"stock market earnings",startups:"tech startup funding round",
+  science:"science research breakthrough",crypto:"cryptocurrency bitcoin ethereum",
+  energy:"energy battery fusion solar",propulsion:"rocket launch propulsion spacex",
+  drones:"drone UAV technology",india:"India technology semiconductor",
+  china:"China technology semiconductor",anime:"anime industry japan",
+};
+const FLASH_TOPICS=[
+  {id:"oil",label:"Oil & Energy",q:"crude oil prices OPEC energy markets",color:"#fbbf24"},
+  {id:"ai",label:"AI & Robotics",q:"artificial intelligence robotics",color:"#38bdf8"},
+  {id:"chips",label:"Chip Money",q:"semiconductor chip funding investment fab",color:"#a78bfa"},
+];
+const TICKERS=[
+  {s:"NVDA",n:"NVIDIA"},{s:"AMD",n:"AMD"},{s:"TSLA",n:"Tesla"},{s:"MSFT",n:"Microsoft"},
+  {s:"AAPL",n:"Apple"},{s:"META",n:"Meta"},{s:"TSM",n:"TSMC"},{s:"INTC",n:"Intel"},
+  {s:"SMH",n:"Chip ETF"},{s:"CL=F",n:"WTI Crude"},
+];
+const DEMO_PRICES={NVDA:1024.86,AMD:164.72,TSLA:248.42,MSFT:420.18,AAPL:195.30,META:485.32,
+  TSM:172.40,INTC:34.80,SMH:262.10,"CL=F":78.40};
+const DEMO_NEWS={
+  oil:[["Oil steadies as OPEC+ weighs output increase for next quarter","Reuters",8],
+    ["US crude inventories fall more than expected, lifting WTI","Bloomberg",34],
+    ["WTI holds above $78 ahead of weekly inventory data","CNBC",61],
+    ["Gulf producers signal supply discipline through Q3","Financial Times",95],
+    ["Refinery margins widen as summer demand picks up","Reuters",130]],
+  ai:[["Humanoid robot startup signs first multi-year factory contract","The Information",12],
+    ["New open-weights model tops coding benchmarks at lower cost","TechCrunch",25],
+    ["Robotics venture investment hits a quarterly record","Bloomberg",48],
+    ["AI datacenter buildout strains regional power grids","WSJ",80],
+    ["Warehouse automation deployments double year over year","Reuters",115]],
+  chips:[["TSMC guides capital spending higher on sustained AI demand","Nikkei",9],
+    ["Chip startup raises $400M for inference-optimized silicon","TechCrunch",30],
+    ["US fab subsidy program enters next award phase","Reuters",55],
+    ["High-bandwidth memory supply sold out through next year","SCMP",90],
+    ["Advanced packaging capacity becomes the new bottleneck","Bloomberg",125]],
+  wire:[["Markets open higher as bond yields ease","Bloomberg",6],
+    ["Fusion pilot plant clears key regulatory milestone","Reuters",22],
+    ["Launch startup completes first orbital test flight","SpaceNews",47],
+    ["Battery maker expands sodium-ion production line","Nikkei",75],
+    ["Quantum networking testbed links two city campuses","Ars Technica",110]],
+};
+
 /* colour helper for logos */
 function coColor(name){
   const map={OpenAI:"#10a37f",NVIDIA:"#76b900",Tesla:"#e82127",Apple:"#a1a1aa",Microsoft:"#00a4ef",
@@ -870,7 +968,9 @@ const store={
   savedSearch:JSON.parse(localStorage.getItem(LS+"_ss")||"[]"),
   theme:localStorage.getItem(LS+"_theme")||"dark",
   density:localStorage.getItem(LS+"_dens")||"comfortable",
+  customCats:JSON.parse(localStorage.getItem(LS+"_cc")||"[]"),
   save(){
+    localStorage.setItem(LS+"_cc",JSON.stringify(this.customCats));
     localStorage.setItem(LS+"_tags",JSON.stringify(this.followedTags));
     localStorage.setItem(LS+"_bm",JSON.stringify(this.bookmarks));
     localStorage.setItem(LS+"_sv",JSON.stringify(this.saved));
@@ -974,6 +1074,22 @@ function sparkline(seed,up,w=60,h=26){
     <polyline points="${line}" fill="none" stroke="${col}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
     <circle cx="${ex}" cy="${ey}" r="2" fill="${col}"/></svg>`;
 }
+function sparkFromCloses(vals,up,w=60,h=26){
+  if(!vals.length)return "";
+  const min=Math.min(...vals),max=Math.max(...vals),rng=max-min||1;
+  const col=up?"#34d399":"#fb7185";
+  const step=w/((vals.length-1)||1);
+  const line=vals.map((v,i)=>`${(i*step).toFixed(1)},${(h-4-(v-min)/rng*(h-8)).toFixed(1)}`).join(" ");
+  const ex=w.toFixed(1),ey=(h-4-(vals[vals.length-1]-min)/rng*(h-8)).toFixed(1);
+  const id="lq"+Math.round(vals[0]*100)+(up?"u":"d");
+  return `<svg class="wl-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${col}" stop-opacity=".3"/><stop offset="1" stop-color="${col}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <polyline points="0,${h} ${line} ${ex},${h}" fill="url(#${id})" stroke="none"/>
+    <polyline points="${line}" fill="none" stroke="${col}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${ex}" cy="${ey}" r="2" fill="${col}"/></svg>`;
+}
 function srcBadge(id){const s=SRC[id];if(!s)return"";const t=s.t||"#fff";
   return `<span class="src"><span class="fav" style="background:${s.c};color:${t}">${s.n[0]}</span>${esc(s.n)}</span>`;}
 
@@ -985,11 +1101,150 @@ function toast(msg){
 }
 
 /* =========================================================================
+   LIVE DATA LAYER
+   free keyless sources: Yahoo Finance chart API (quotes + OHLC candles) and
+   Google News RSS via public CORS proxies, Hacker News Algolia API direct.
+   Everything degrades to deterministic demo data with a visible DEMO pill.
+   ========================================================================= */
+const LIVE={quotes:{},timers:[],okCount:0,failCount:0,netDead:false};
+const PROXY=[
+  u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+];
+const MKT={sym:"NVDA",range:"3M",topic:"oil"};
+let LW={id:"all",q:"technology OR markets OR science"};
+
+function cacheGet(k,maxAge){
+  try{const o=JSON.parse(localStorage.getItem("tldr_c_"+k)||"null");
+    if(o&&Date.now()-o.t<maxAge)return o.v;}catch(_){}
+  return null;
+}
+function cacheSet(k,v){
+  try{localStorage.setItem("tldr_c_"+k,JSON.stringify({t:Date.now(),v}));}catch(_){}
+}
+function fetchTimeout(url,ms){
+  const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);
+  return fetch(url,{signal:c.signal}).finally(()=>clearTimeout(t));
+}
+async function fetchLive(url,{direct=false,timeout=8000}={}){
+  if(LIVE.netDead)throw new Error("offline");
+  const tries=direct?[u=>u,...PROXY]:[...PROXY];
+  let err;
+  for(const wrap of tries){
+    try{
+      const r=await fetchTimeout(wrap(url),timeout);
+      if(!r.ok)throw new Error("HTTP "+r.status);
+      const txt=await r.text();
+      if(!txt)throw new Error("empty");
+      LIVE.okCount++;
+      return txt;
+    }catch(e){err=e;}
+  }
+  LIVE.failCount++;
+  if(!LIVE.okCount&&LIVE.failCount>=3)LIVE.netDead=true; // stop hammering dead networks
+  throw err||new Error("fetch failed");
+}
+function hashCode(s){let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))|0;return Math.abs(h)||7;}
+function genCandles(seed,n,base){
+  let x=seed;const rnd=()=>{x=(x*1103515245+12345)%2147483648;return x/2147483648;};
+  const arr=[];let prev=base*(0.82+rnd()*0.2);
+  for(let i=0;i<n;i++){
+    const o=prev,c=o*(1+(rnd()-0.485)*0.028);
+    const h=Math.max(o,c)*(1+rnd()*0.009),l=Math.min(o,c)*(1-rnd()*0.009);
+    arr.push({t:Date.now()-(n-1-i)*864e5,o,h,l,c,v:5e6+rnd()*3e7});
+    prev=c;
+  }
+  return arr;
+}
+function demoQuote(sym){
+  const base=DEMO_PRICES[sym]||100;
+  const candles=genCandles(hashCode(sym),130,base);
+  const price=candles[candles.length-1].c,prev=candles[candles.length-2].c;
+  return {sym,price,chg:(price-prev)/prev*100,candles,live:false};
+}
+async function getQuote(sym,{fresh=false}={}){
+  const key="q_"+sym;
+  if(!fresh){const c=cacheGet(key,15*60e3);if(c){LIVE.quotes[sym]=c;return c;}}
+  const url=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=6mo&interval=1d`;
+  const j=JSON.parse(await fetchLive(url));
+  const r=j.chart&&j.chart.result&&j.chart.result[0];
+  if(!r||!r.timestamp)throw new Error("bad quote payload");
+  const q=r.indicators.quote[0];
+  const candles=[];
+  r.timestamp.forEach((t,i)=>{
+    if(q.open[i]==null||q.close[i]==null||q.high[i]==null||q.low[i]==null)return;
+    candles.push({t:t*1000,o:q.open[i],h:q.high[i],l:q.low[i],c:q.close[i],v:(q.volume&&q.volume[i])||0});
+  });
+  if(!candles.length)throw new Error("no candles");
+  const price=r.meta.regularMarketPrice??candles[candles.length-1].c;
+  const prev=r.meta.chartPreviousClose??(candles.length>1?candles[candles.length-2].c:price);
+  const out={sym,price,chg:prev?(price-prev)/prev*100:0,candles,live:true};
+  LIVE.quotes[sym]=out;cacheSet(key,out);
+  return out;
+}
+async function quoteOrDemo(sym,fresh){
+  try{return await getQuote(sym,{fresh});}catch(_){return LIVE.quotes[sym]||demoQuote(sym);}
+}
+async function gnews(q){
+  const key="n_"+q;
+  const c=cacheGet(key,5*60e3);if(c)return c;
+  const url=`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
+  const xml=await fetchLive(url);
+  const doc=new DOMParser().parseFromString(xml,"text/xml");
+  const items=[...doc.querySelectorAll("item")].slice(0,16).map(it=>{
+    let title=it.querySelector("title")?.textContent||"";
+    const src=it.getElementsByTagName("source")[0]?.textContent||"";
+    if(src&&title.endsWith(" - "+src))title=title.slice(0,-(src.length+3));
+    return {title,link:it.querySelector("link")?.textContent||"#",src:src||"News",
+      pub:+new Date(it.querySelector("pubDate")?.textContent||Date.now())};
+  }).filter(x=>x.title);
+  if(!items.length)throw new Error("empty rss");
+  cacheSet(key,items);
+  return items;
+}
+async function hnNews(q){
+  const url=`https://hn.algolia.com/api/v1/search_by_date?query=${encodeURIComponent(q)}&tags=story&hitsPerPage=14`;
+  const j=JSON.parse(await fetchLive(url,{direct:true}));
+  const items=(j.hits||[]).filter(h=>h.title).map(h=>({
+    title:h.title,link:h.url||("https://news.ycombinator.com/item?id="+h.objectID),
+    src:"Hacker News",pub:+new Date(h.created_at)}));
+  if(!items.length)throw new Error("no hits");
+  return items;
+}
+function demoNews(topicId){
+  return (DEMO_NEWS[topicId]||DEMO_NEWS.wire).map(([title,src,min])=>
+    ({title,src,link:"#",pub:Date.now()-min*6e4}));
+}
+async function newsOrDemo(topicId,q){
+  try{return {items:await gnews(q),live:true};}
+  catch(_){
+    try{return {items:await hnNews(q),live:true};}
+    catch(__){return {items:demoNews(topicId),live:false};}
+  }
+}
+function timeAgo(t){
+  const s=(Date.now()-t)/1e3;
+  if(s<90)return "now";
+  if(s<3600)return Math.floor(s/60)+"m";
+  if(s<86400)return Math.floor(s/3600)+"h";
+  return Math.floor(s/86400)+"d";
+}
+function fmtPx(p){return p>=1000?p.toFixed(0):p>=100?p.toFixed(1):p.toFixed(2);}
+function fmtVol(v){return v>=1e9?(v/1e9).toFixed(1)+"B":v>=1e6?(v/1e6).toFixed(1)+"M":v>=1e3?(v/1e3).toFixed(0)+"K":String(Math.round(v));}
+function setPill(sel,live){
+  const p=$(sel);if(!p)return;
+  p.className="live-pill "+(live?"on":"demo");
+  p.innerHTML=`<span class="d"></span>${live?"Live":"Demo data"}`;
+}
+function clearLiveTimers(){LIVE.timers.forEach(clearInterval);LIVE.timers=[];}
+
+/* =========================================================================
    NAV RENDER
    ========================================================================= */
 function renderNav(){
   const counts=catCounts();
   const main=[["home","Home",I.home],["brief","Today's Brief",I.brief],
+    ["live","Live Wire",I.bolt],
     ["bookmarks","Bookmarks",I.book],["saved","Saved Searches",I.saved]];
   $("#navMain").innerHTML=main.map(([id,label,ic])=>{
     let extra="";
@@ -1004,6 +1259,11 @@ function renderNav(){
     return `<button class="nav-item ${on?'on':''}" data-cat="${c.id}">
       <span class="dot" style="color:${c.color}"></span><span>${c.name}</span>
       <span class="count">${counts[c.id]}</span></button>`;
+  }).join("")+store.customCats.map(cc=>{
+    const on=view.mode==="ccat"&&view.ccat===cc.id;
+    return `<button class="nav-item ${on?'on':''}" data-ccat="${esc(cc.id)}">
+      <span class="dot" style="color:${cc.color}"></span><span>${esc(cc.name)}</span>
+      <span class="count" style="color:${on?'var(--cyan)':'var(--emerald)'}">live</span></button>`;
   }).join("");
 
   $("#navTags").innerHTML=store.followedTags.map(t=>{
@@ -1043,9 +1303,20 @@ function activeArticles(){
    ========================================================================= */
 function renderCenter(){
   const c=$("#center");c.innerHTML="";
+  clearLiveTimers();
+  if(view.mode==="live"){c.appendChild(liveWirePanel());startLiveWire();return;}
+  if(view.mode==="ccat"){
+    const cc=store.customCats.find(x=>x.id===view.ccat);
+    if(!cc){go("home");return;}
+    LW={id:cc.id,q:cc.q};
+    c.appendChild(liveNewsPanel(cc.name,cc.color,false));
+    startLiveWire();
+    return;
+  }
   if(view.mode==="home"||view.mode==="brief")c.appendChild(heroEl());
   c.appendChild(catScrollEl());
   c.appendChild(feedBarEl());
+  if(view.mode==="cat"&&view.cat==="markets"){c.appendChild(marketsPanel());startMarkets();}
   const list=activeArticles();
   if(!list.length){c.appendChild(emptyEl());return;}
   list.forEach((a,i)=>{const card=articleCard(a);card.style.animationDelay=(i*35)+"ms";c.appendChild(card);});
@@ -1185,6 +1456,233 @@ function articleCard(a){
 }
 
 /* =========================================================================
+   MARKETS LIVE — quote board, candlestick chart, flash wire
+   ========================================================================= */
+function marketsPanel(){
+  const wrap=el(`<div style="display:flex;flex-direction:column;gap:16px"></div>`);
+  wrap.appendChild(el(`<section class="panel" style="padding:16px">
+    <div class="w-head" style="margin-bottom:12px">
+      <div class="ic" style="background:rgba(52,211,153,.13);color:var(--emerald)">${svg(I.chart)}</div>
+      <h4>Live Quote Board</h4>
+      <span class="live-pill demo" id="mktPill"><span class="d"></span>Connecting</span>
+      <span class="mono" id="mktUpd" style="margin-left:auto;font-size:10.5px;color:var(--txt-3)"></span>
+    </div>
+    <div class="qb-grid" id="qbGrid">${TICKERS.map(t=>`
+      <div class="qb-cell"><div class="s">${esc(t.s)} · ${esc(t.n)}</div>
+      <div class="p" style="color:var(--txt-3)">—</div><div class="c" style="color:var(--txt-3)">loading…</div></div>`).join("")}
+    </div></section>`));
+  wrap.appendChild(el(`<section class="panel chart-panel">
+    <div class="chart-head">
+      <span class="sym" id="ccSym"></span>
+      <span class="px mono" id="ccPx"></span>
+      <span class="chgv" id="ccChg"></span>
+      <div class="rng" id="ccRng">${["1M","3M","6M"].map(r=>
+        `<button data-rng="${r}" class="${MKT.range===r?'on':''}">${r}</button>`).join("")}</div>
+    </div>
+    <div class="cc-wrap"><canvas id="ccCanvas"></canvas>
+      <div class="cc-hair" id="ccHair"></div><div class="cc-tip" id="ccTip"></div></div>
+  </section>`));
+  wrap.appendChild(el(`<section class="panel" style="padding:16px">
+    <div class="w-head" style="margin-bottom:10px">
+      <div class="ic" style="background:rgba(251,113,133,.13);color:var(--rose)">${svg(I.bolt)}</div>
+      <h4>Flash Wire</h4>
+      <span class="live-pill demo" id="fwPill"><span class="d"></span>Connecting</span>
+      <span class="mono" id="fwUpd" style="margin-left:auto;font-size:10.5px;color:var(--txt-3)"></span>
+    </div>
+    <div class="flash-tabs">${FLASH_TOPICS.map(t=>
+      `<button class="flash-tab ${MKT.topic===t.id?'on':''}" data-fw="${t.id}" style="--tc:${t.color}">
+       <span class="dot"></span>${t.label}</button>`).join("")}</div>
+    <div id="fwList"><div class="empty" style="padding:26px 20px">${svg(I.bolt)}<b>Pulling headlines…</b></div></div>
+  </section>`));
+  return wrap;
+}
+async function startMarkets(){
+  drawChart(); // instant paint from cache/demo, redrawn once quotes land
+  refreshFlash();
+  await refreshQuotes(false);
+  drawChart();
+  LIVE.timers.push(setInterval(()=>refreshQuotes(true).then(drawChart),120e3));
+  LIVE.timers.push(setInterval(refreshFlash,90e3));
+}
+async function refreshQuotes(fresh){
+  if(!$("#qbGrid"))return;
+  const rs=await Promise.all(TICKERS.map(t=>quoteOrDemo(t.s,fresh)));
+  const grid=$("#qbGrid");if(!grid)return;
+  rs.forEach(r=>LIVE.quotes[r.sym]=r);
+  grid.innerHTML=TICKERS.map((t,i)=>{
+    const q=rs[i],up=q.chg>=0;
+    return `<button class="qb-cell ${MKT.sym===t.s?'sel':''}" data-qsym="${esc(t.s)}">
+      <div class="s">${esc(t.s)} · ${esc(t.n)}</div>
+      <div class="p">$${fmtPx(q.price)}</div>
+      <div class="c" style="color:${up?'var(--up)':'var(--down)'}">${up?'▲ +':'▼ −'}${Math.abs(q.chg).toFixed(2)}%</div>
+    </button>`;
+  }).join("");
+  setPill("#mktPill",rs.some(r=>r.live));
+  const u=$("#mktUpd");if(u)u.textContent="Updated "+new Date().toLocaleTimeString();
+}
+function drawChart(){
+  const cv=$("#ccCanvas");if(!cv)return;
+  const q=LIVE.quotes[MKT.sym]||demoQuote(MKT.sym);
+  const n={"1M":22,"3M":66,"6M":9999}[MKT.range]||66;
+  const data=q.candles.slice(-n);
+  const t=TICKERS.find(x=>x.s===MKT.sym);
+  const up=q.chg>=0;
+  const set=(sel,txt)=>{const e=$(sel);if(e)e.textContent=txt;};
+  set("#ccSym",(t?t.n:MKT.sym)+" · "+MKT.sym);
+  set("#ccPx","$"+fmtPx(q.price));
+  const chgEl=$("#ccChg");
+  if(chgEl){chgEl.textContent=(up?"▲ +":"▼ −")+Math.abs(q.chg).toFixed(2)+"%";
+    chgEl.style.color=up?"var(--up)":"var(--down)";}
+  drawCandles(cv,$("#ccTip"),$("#ccHair"),data);
+}
+function drawCandles(canvas,tipEl,hairEl,data){
+  if(!data.length)return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.clientWidth||600,H=canvas.clientHeight||300;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  const ctx=canvas.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const padL=8,padR=58,padT=12,padB=30,volH=44;
+  const plotW=W-padL-padR,priceH=H-padT-padB-volH-10;
+  const hi=Math.max(...data.map(d=>d.h)),lo=Math.min(...data.map(d=>d.l));
+  const vmax=Math.max(...data.map(d=>d.v))||1;
+  const X=i=>padL+plotW*(i+0.5)/data.length;
+  const Y=p=>padT+priceH*(1-(p-lo)/(hi-lo||1));
+  const css=getComputedStyle(document.documentElement);
+  const cUp=css.getPropertyValue("--up").trim()||"#34d399";
+  const cDn=css.getPropertyValue("--down").trim()||"#fb7185";
+  const cGrid=css.getPropertyValue("--line").trim()||"rgba(255,255,255,.07)";
+  const cTxt=css.getPropertyValue("--txt-3").trim()||"#5f6a7d";
+  ctx.clearRect(0,0,W,H);
+  ctx.font="10px ui-monospace,Menlo,monospace";
+  ctx.strokeStyle=cGrid;ctx.fillStyle=cTxt;ctx.lineWidth=1;
+  for(let g=0;g<=4;g++){
+    const p=lo+(hi-lo)*g/4,y=Y(p);
+    ctx.beginPath();ctx.moveTo(padL,y+.5);ctx.lineTo(W-padR,y+.5);ctx.stroke();
+    ctx.fillText("$"+fmtPx(p),W-padR+8,y+3);
+  }
+  ctx.textAlign="center";
+  const step=Math.max(1,Math.floor(data.length/5));
+  for(let i=0;i<data.length;i+=step){
+    const d=new Date(data[i].t);
+    ctx.fillText(d.toLocaleDateString(undefined,{month:"short",day:"numeric"}),X(i),H-padB+16);
+  }
+  ctx.textAlign="left";
+  const volTop=padT+priceH+10;
+  const bw=Math.max(1.5,plotW/data.length*0.62);
+  data.forEach((d,i)=>{
+    ctx.globalAlpha=.32;ctx.fillStyle=d.c>=d.o?cUp:cDn;
+    const bh=Math.max(1,volH*(d.v/vmax));
+    ctx.fillRect(X(i)-bw/2,volTop+volH-bh,bw,bh);
+    ctx.globalAlpha=1;
+  });
+  data.forEach((d,i)=>{
+    const col=d.c>=d.o?cUp:cDn;
+    ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=1;
+    const x=X(i);
+    ctx.beginPath();ctx.moveTo(x,Y(d.h));ctx.lineTo(x,Y(d.l));ctx.stroke();
+    const yo=Y(d.o),yc=Y(d.c);
+    ctx.fillRect(x-bw/2,Math.min(yo,yc),bw,Math.max(1.4,Math.abs(yc-yo)));
+  });
+  const last=data[data.length-1],ly=Y(last.c),lUp=last.c>=last.o;
+  ctx.setLineDash([4,4]);ctx.strokeStyle=lUp?cUp:cDn;
+  ctx.beginPath();ctx.moveTo(padL,ly+.5);ctx.lineTo(W-padR,ly+.5);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle=lUp?cUp:cDn;
+  ctx.fillRect(W-padR+4,ly-9,padR-8,18);
+  ctx.fillStyle="#04121b";
+  ctx.fillText("$"+fmtPx(last.c),W-padR+8,ly+3.5);
+  canvas.onmousemove=e=>{
+    const r=canvas.getBoundingClientRect();
+    const rel=(e.clientX-r.left-padL)/plotW;
+    const i=Math.min(data.length-1,Math.max(0,Math.floor(rel*data.length)));
+    const d=data[i];
+    if(!d){if(tipEl)tipEl.style.display="none";if(hairEl)hairEl.style.display="none";return;}
+    if(hairEl){hairEl.style.display="block";hairEl.style.left=X(i)+"px";}
+    if(tipEl){
+      const dt=new Date(d.t).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+      const dUp=d.c>=d.o;
+      tipEl.innerHTML=`<b>${dt}</b><br>O $${fmtPx(d.o)} · H $${fmtPx(d.h)}<br>L $${fmtPx(d.l)} · C <span style="color:${dUp?cUp:cDn}">${dUp?"▲":"▼"} $${fmtPx(d.c)}</span><br>Vol ${fmtVol(d.v)}`;
+      tipEl.style.display="block";
+      tipEl.style.left=Math.min(e.clientX-r.left+14,W-160)+"px";
+      tipEl.style.top=Math.max(6,e.clientY-r.top-70)+"px";
+    }
+  };
+  canvas.onmouseleave=()=>{
+    if(tipEl)tipEl.style.display="none";
+    if(hairEl)hairEl.style.display="none";
+  };
+}
+function fwRow(it){
+  const ext=it.link&&it.link!=="#";
+  return `<div class="flash-row">
+    <span class="t">${timeAgo(it.pub)}</span>
+    <div class="h">${ext?`<a href="${esc(it.link)}" target="_blank" rel="noopener noreferrer">${esc(it.title)}</a>`:esc(it.title)}
+      <div class="fsrc">${esc(it.src)}</div></div></div>`;
+}
+async function refreshFlash(){
+  if(!$("#fwList"))return;
+  const t=FLASH_TOPICS.find(x=>x.id===MKT.topic)||FLASH_TOPICS[0];
+  const {items,live}=await newsOrDemo(t.id,t.q);
+  const list=$("#fwList");if(!list)return;
+  list.innerHTML=items.slice(0,9).map(fwRow).join("");
+  setPill("#fwPill",live);
+  const u=$("#fwUpd");if(u)u.textContent="Updated "+new Date().toLocaleTimeString();
+}
+
+/* =========================================================================
+   LIVE WIRE — real headlines, desk chips, custom desks
+   ========================================================================= */
+function liveNewsPanel(title,color,withChips){
+  return el(`<section class="panel" style="padding:16px">
+    <div class="w-head" style="margin-bottom:12px">
+      <div class="ic" style="background:${color}22;color:${color}">${svg(I.bolt)}</div>
+      <h4>${esc(title)}</h4>
+      <span class="live-pill demo" id="lwPill"><span class="d"></span>Connecting</span>
+      <span class="mono" id="lwUpd" style="margin-left:auto;font-size:10.5px;color:var(--txt-3)"></span>
+    </div>
+    ${withChips?'<div class="cloud" style="margin-bottom:12px" id="lwChips"></div>':""}
+    <div id="lwList"><div class="empty" style="padding:30px 20px">${svg(I.bolt)}<b>Connecting to live feeds…</b>Pulling the latest headlines.</div></div>
+  </section>`);
+}
+function liveWirePanel(){
+  const p=liveNewsPanel("Live Wire","#fb7185",true);
+  const desks=[{id:"all",name:"All Desks",q:"technology OR markets OR science"}]
+    .concat(CATEGORIES.filter(c=>!store.hidden.includes(c.id))
+      .map(c=>({id:c.id,name:c.short,q:LIVE_QUERIES[c.id]||c.name})))
+    .concat(store.customCats.map(cc=>({id:cc.id,name:cc.name,q:cc.q})));
+  $("#lwChips",p).innerHTML=desks.map(d=>
+    `<button class="chip ${LW.id===d.id?'on-chip':''}" data-lw="${esc(d.id)}" data-lwq="${esc(d.q)}">${esc(d.name)}</button>`).join("");
+  return p;
+}
+async function refreshWire(){
+  if(!$("#lwList"))return;
+  const {items,live}=await newsOrDemo("wire",LW.q);
+  const list=$("#lwList");if(!list)return;
+  list.innerHTML=items.slice(0,14).map(fwRow).join("");
+  setPill("#lwPill",live);
+  const u=$("#lwUpd");if(u)u.textContent="Updated "+new Date().toLocaleTimeString();
+}
+function startLiveWire(){
+  refreshWire();
+  LIVE.timers.push(setInterval(refreshWire,90e3));
+}
+const YSYM={NVIDIA:"NVDA",NVDA:"NVDA",AMD:"AMD",TSLA:"TSLA",MSFT:"MSFT",AAPL:"AAPL",META:"META"};
+async function refreshWatchQuotes(){
+  const syms=store.watch.filter(t=>YSYM[t]); // public tickers only
+  if(!syms.length)return;
+  let any=false;
+  await Promise.all(syms.map(async t=>{
+    try{
+      await getQuote(YSYM[t]);
+      LIVE.quotes[t]=LIVE.quotes[YSYM[t]]; // alias watchlist key → yahoo symbol
+      any=true;
+    }catch(_){}
+  }));
+  if(any&&$("#rail"))renderRail();
+}
+
+/* =========================================================================
    RIGHT RAIL
    ========================================================================= */
 function renderRail(){
@@ -1285,12 +1783,16 @@ function widgetWatch(){
   const w=el(`<section class="widget">${wHead(I.eye,"#fbbf24","My Watchlist",{label:"Edit",act:"editwatch"})}</section>`);
   const list=store.watch.map(t=>WATCH.find(x=>x.t===t)).filter(Boolean);
   list.forEach((c,i)=>{
-    const up=c.chg==null?true:c.chg>=0;
-    w.appendChild(el(`<div class="wl-row" data-search="${esc(c.n)}">
+    const lq=c.pub?LIVE.quotes[c.t]:null;
+    const price=lq?lq.price:c.price,chg=lq?lq.chg:c.chg;
+    const up=chg==null?true:chg>=0;
+    const spark=(lq&&lq.candles)?sparkFromCloses(lq.candles.slice(-30).map(d=>d.c),up)
+      :sparkline(i+3,up);
+    w.appendChild(el(`<div class="wl-row" data-search="${esc(c.n)}" title="${lq&&lq.live?'Live quote':''}">
       <div class="wl-name"><span class="co-logo" style="background:${coColor(c.n)}">${esc(c.n[0])}</span><b>${esc(c.n)}</b></div>
-      ${sparkline(i+3,up)}
-      <div>${c.pub?`<div class="wl-price">$${c.price.toFixed(2)}</div>
-        <div class="wl-chg ${up?'':' '}" style="color:${up?'var(--up)':'var(--down)'}">${up?'+':''}${c.chg.toFixed(2)}%</div>`:
+      ${spark}
+      <div>${c.pub?`<div class="wl-price">$${price.toFixed(2)}</div>
+        <div class="wl-chg" style="color:${up?'var(--up)':'var(--down)'}">${up?'▲ +':'▼ −'}${Math.abs(chg).toFixed(2)}%</div>`:
         `<div class="wl-price" style="color:var(--txt-3);font-size:11px">Private</div>`}</div>
     </div>`));
   });
@@ -1440,6 +1942,51 @@ function openWatchEditor(anchor){
     b.classList.toggle("on");store.save();renderRail();});
   $("#watchDone",p).onclick=closePop;
 }
+function openCatEditor(anchor){
+  const ccColors=["#38bdf8","#a78bfa","#34d399","#fbbf24","#f472b6","#22d3ee"];
+  const p=popAt(anchor,`<h5>Manage desks</h5>
+    <div class="desc">Follow or unfollow categories. Custom desks pull live headlines for your keywords.</div>
+    <div class="grp"><label>Categories</label><div class="opt-wrap">
+      ${CATEGORIES.map(c=>`<button class="opt ${store.hidden.includes(c.id)?'':'on'}" data-togglecat="${c.id}">${c.short}</button>`).join("")}
+    </div></div>
+    <div class="grp"><label>My custom desks</label><div class="opt-wrap" id="ccList"></div></div>
+    <div class="grp"><label>Add a desk — live keyword feed</label>
+      <input id="ccName" type="text" placeholder="Name · e.g. Quantum" maxlength="24">
+      <input id="ccQuery" type="text" placeholder="Keywords · e.g. quantum computing" maxlength="80">
+      <div class="row"><button class="pop-btn solid" id="ccAdd">Add desk</button></div>
+    </div>`,340);
+  const renderCC=()=>{
+    $("#ccList",p).innerHTML=store.customCats.length
+      ?store.customCats.map(cc=>`<button class="opt on" data-delcc="${esc(cc.id)}" title="Remove desk">${esc(cc.name)} ×</button>`).join("")
+      :'<span style="font-size:11.5px;color:var(--txt-3)">None yet — add one below.</span>';
+    $$("#ccList [data-delcc]",p).forEach(b=>b.onclick=()=>{
+      store.customCats=store.customCats.filter(x=>x.id!==b.dataset.delcc);
+      store.save();
+      if(view.mode==="ccat"&&view.ccat===b.dataset.delcc)go("home");
+      renderNav();renderCC();toast("Desk removed");
+    });
+  };
+  renderCC();
+  $$("[data-togglecat]",p).forEach(b=>b.onclick=()=>{
+    const id=b.dataset.togglecat;
+    const i=store.hidden.indexOf(id);
+    if(i>=0)store.hidden.splice(i,1);else store.hidden.push(id);
+    b.classList.toggle("on");
+    store.save();renderNav();
+    if(view.mode==="cat"&&store.hidden.includes(view.cat))go("home");else rerender();
+    renderRail();
+  });
+  $("#ccAdd",p).onclick=()=>{
+    const name=$("#ccName",p).value.trim();
+    const kq=$("#ccQuery",p).value.trim()||name;
+    if(!name){$("#ccName",p).focus();return;}
+    store.customCats.push({id:"c"+Date.now(),name,q:kq,
+      color:ccColors[store.customCats.length%ccColors.length]});
+    store.save();renderNav();
+    $("#ccName",p).value="";$("#ccQuery",p).value="";
+    renderCC();toast("Following desk: "+name);
+  };
+}
 function openPersonalize(anchor){
   const p=popAt(anchor,`<h5>Personalize</h5><div class="desc">Tune your homepage. Changes save automatically.</div>
     <div class="grp"><label>Theme</label><div class="opt-wrap" data-theme-grp>
@@ -1555,6 +2102,7 @@ function runSearch(q){
 }
 function renderSearchResults(q,list){
   const c=$("#center");c.innerHTML="";
+  clearLiveTimers();
   const saved=store.savedSearch.includes(q);
   c.appendChild(el(`<div class="feed-bar">
     <h2>Results for “${esc(q)}” <span class="cnt">${list.length} ${list.length===1?'match':'matches'}</span></h2>
@@ -1597,11 +2145,38 @@ function onClick(e){
   let n=q("[data-nav]");
   if(n){const m=n.dataset.nav;
     if(m==="bookmarks")go("bookmarks");else if(m==="brief")go("brief");
-    else if(m==="saved")go("saved");else go("home");
+    else if(m==="saved")go("saved");else if(m==="live")go("live");else go("home");
     if(window.innerWidth<=860)closeNav();return;}
 
   let cat=q("[data-cat]");
   if(cat){goCat(cat.dataset.cat);if(window.innerWidth<=860)closeNav();return;}
+
+  let ccat=q("[data-ccat]");
+  if(ccat){view.mode="ccat";view.ccat=ccat.dataset.ccat;view.cat=null;view.tag=null;
+    rerender();renderNav();renderMobileBar();window.scrollTo({top:0,behavior:"smooth"});
+    if(window.innerWidth<=860)closeNav();return;}
+
+  let qs=q("[data-qsym]");
+  if(qs){MKT.sym=qs.dataset.qsym;
+    $$("#qbGrid .qb-cell").forEach(x=>x.classList.toggle("sel",x.dataset.qsym===MKT.sym));
+    drawChart();return;}
+
+  let rng=q("[data-rng]");
+  if(rng){MKT.range=rng.dataset.rng;
+    $$("#ccRng button").forEach(b=>b.classList.toggle("on",b.dataset.rng===MKT.range));
+    drawChart();return;}
+
+  let fw=q("[data-fw]");
+  if(fw){MKT.topic=fw.dataset.fw;
+    $$(".flash-tab").forEach(b=>b.classList.toggle("on",b.dataset.fw===MKT.topic));
+    const l=$("#fwList");if(l)l.innerHTML=`<div class="empty" style="padding:26px 20px">${svg(I.bolt)}<b>Pulling headlines…</b></div>`;
+    refreshFlash();return;}
+
+  let lw=q("[data-lw]");
+  if(lw){LW={id:lw.dataset.lw,q:lw.dataset.lwq};
+    $$("#lwChips .chip").forEach(x=>x.classList.toggle("on-chip",x.dataset.lw===LW.id));
+    const l=$("#lwList");if(l)l.innerHTML=`<div class="empty" style="padding:26px 20px">${svg(I.bolt)}<b>Pulling headlines…</b></div>`;
+    refreshWire();return;}
 
   let tg=q("[data-tag]");
   if(tg){goTag(tg.dataset.tag);return;}
@@ -1731,6 +2306,11 @@ function init(){
   $("#notifBtn").onclick=()=>openNotifs($("#notifBtn"));
   $("#briefBtn").onclick=()=>go("brief");
   $("#addTagBtn").onclick=()=>openAddTag($("#addTagBtn"));
+  $("#catEditBtn").onclick=()=>openCatEditor($("#catEditBtn"));
+
+  // live data: hydrate watchlist quotes; redraw chart on resize
+  refreshWatchQuotes();
+  let rsT;window.addEventListener("resize",()=>{clearTimeout(rsT);rsT=setTimeout(()=>{if($("#ccCanvas"))drawChart();},200);});
   $("#menuBtn").onclick=openNav;
   $(".avatar").onclick=()=>openPersonalize($(".avatar"));
   $("#themeToggle").onclick=()=>setTheme(store.theme==="dark"?"light":"dark");
